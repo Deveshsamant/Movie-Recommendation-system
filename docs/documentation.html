@@ -1,0 +1,1026 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Movie Recommendation System — Technical Documentation</title>
+<style>
+  @page { size: A4; margin: 18mm 16mm 20mm 16mm; }
+  @page { @bottom-center { content: counter(page); } }
+
+  * { box-sizing: border-box; }
+  body {
+    font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    font-size: 10.2pt; line-height: 1.55; color: #1a1a1a; margin: 0;
+    -webkit-print-color-adjust: exact; print-color-adjust: exact;
+  }
+  h1, h2, h3, h4 { color: #0f0f0f; line-height: 1.2; margin: 0 0 .4em; }
+  h1 { font-size: 21pt; letter-spacing: -.02em; }
+  h2 { font-size: 15pt; letter-spacing: -.015em; margin-top: 1.6em;
+       padding-bottom: .25em; border-bottom: 2.5px solid #ec3013; }
+  h3 { font-size: 12pt; margin-top: 1.3em; color: #b32410; }
+  h4 { font-size: 10.6pt; margin-top: 1em; }
+  p { margin: 0 0 .7em; }
+  ul, ol { margin: 0 0 .8em; padding-left: 1.3em; }
+  li { margin-bottom: .3em; }
+  b, strong { color: #000; }
+  a { color: #b32410; text-decoration: none; }
+  code, .mono { font-family: Consolas, "Cascadia Mono", monospace; font-size: 9.1pt;
+                background: #f3f2f2; padding: 1px 4px; border-radius: 2px; }
+  pre { font-family: Consolas, "Cascadia Mono", monospace; font-size: 8.9pt;
+        background: #f7f6f6; border-left: 3px solid #ec3013; padding: 9px 12px;
+        margin: .6em 0 .9em; white-space: pre-wrap; line-height: 1.45; }
+  pre code { background: none; padding: 0; }
+
+  table { width: 100%; border-collapse: collapse; margin: .5em 0 1em; font-size: 9.3pt; }
+  th { background: #201e1d; color: #fff; text-align: left; padding: 6px 8px;
+       font-size: 8.4pt; letter-spacing: .05em; text-transform: uppercase; }
+  td { padding: 5px 8px; border-bottom: 1px solid #e2e0df; vertical-align: top; }
+  tr:nth-child(even) td { background: #faf9f9; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .best { color: #b32410; font-weight: 700; }
+
+  .cover { height: 245mm; display: flex; flex-direction: column; justify-content: center;
+           page-break-after: always; }
+  .cover .kicker { font-size: 9pt; letter-spacing: .22em; text-transform: uppercase;
+                   font-weight: 700; color: #fff; background: #ec3013; padding: 6px 11px;
+                   display: inline-block; align-self: flex-start; }
+  .cover h1 { font-size: 34pt; font-weight: 800; letter-spacing: -.035em;
+              line-height: 1.02; margin: 18px 0 0; max-width: 15em; }
+  .cover .rule { height: 6px; width: 90px; background: #ec3013; margin: 18px 0; }
+  .cover .sub { font-size: 12pt; color: #444; max-width: 34em; line-height: 1.5; }
+  .cover .meta { margin-top: 30px; font-size: 9.4pt; color: #555; }
+  .cover .meta b { display: inline-block; min-width: 108px; color: #000; }
+
+  .callout { background: #fff4f1; border-left: 5px solid #ec3013; padding: 10px 14px;
+             margin: .8em 0 1em; }
+  .callout .lbl { font-size: 8.4pt; letter-spacing: .12em; text-transform: uppercase;
+                  font-weight: 700; color: #b32410; display: block; margin-bottom: 4px; }
+  .note { background: #f4f6fa; border-left: 5px solid #3b5bdb; padding: 10px 14px; margin: .8em 0 1em; }
+  .note .lbl { font-size: 8.4pt; letter-spacing: .12em; text-transform: uppercase;
+               font-weight: 700; color: #2b4acb; display: block; margin-bottom: 4px; }
+
+  .toc { page-break-after: always; }
+  .toc ol { list-style: none; padding: 0; counter-reset: sec; }
+  .toc > ol > li { counter-increment: sec; padding: 5px 0; border-bottom: 1px dotted #ccc;
+                   font-weight: 600; font-size: 10.5pt; }
+  .toc > ol > li::before { content: counter(sec) ".  "; color: #ec3013; font-weight: 700; }
+  .toc ul { list-style: none; padding-left: 22px; margin: 4px 0 0; font-weight: 400;
+            font-size: 9.4pt; color: #555; }
+  .toc ul li { margin: 1px 0; }
+
+  figure { margin: .8em 0 1.2em; }
+  figure img { width: 100%; border: 1px solid #d0cecd; display: block; }
+  figcaption { font-size: 8.6pt; color: #666; margin-top: 5px; line-height: 1.45; }
+
+  .qa { page-break-inside: avoid; margin-bottom: 1.1em; }
+  .qa .q { font-weight: 700; color: #0f0f0f; font-size: 10.4pt; margin-bottom: .35em; }
+  .qa .q::before { content: "Q"; background: #ec3013; color: #fff; font-size: 7.6pt;
+                   padding: 1.5px 5px; border-radius: 2px; margin-right: 7px;
+                   vertical-align: 1.5px; }
+  .qa .a { padding-left: 26px; border-left: 2px solid #eae7e7; }
+  .qcat { background: #201e1d; color: #fff; font-size: 9pt; letter-spacing: .1em;
+          text-transform: uppercase; font-weight: 700; padding: 6px 11px; margin: 1.4em 0 .9em; }
+
+  .pb { page-break-before: always; }
+  .avoid { page-break-inside: avoid; }
+  h2, h3 { page-break-after: avoid; }
+  table, pre, figure { page-break-inside: avoid; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════ COVER ═══════════════ -->
+<section class="cover">
+  <span class="kicker">Technical Documentation</span>
+  <h1>Movie Recommendation System</h1>
+  <div class="rule"></div>
+  <p class="sub">Content-based, collaborative and hybrid filtering built on MovieLens 100K —
+  the data, the algorithms, the training procedure, the evaluation, and every design decision
+  behind them. With an interview question bank.</p>
+  <div class="meta">
+    <div><b>Author</b> Devesh Samant</div>
+    <div><b>Dataset</b> MovieLens <span class="mono">ml-latest-small</span> — 610 viewers, 9,724 films, 100,836 ratings</div>
+    <div><b>Metadata</b> TMDB API — 9,700 of 9,724 films enriched</div>
+    <div><b>Stack</b> Python, FastAPI, NumPy, SciPy, scikit-learn · vanilla ES modules</div>
+    <div><b>Repository</b> github.com/Deveshsamant/Movie-Recommendation-System</div>
+    <div><b>Licence</b> MIT</div>
+  </div>
+</section>
+
+<!-- ═══════════════ TOC ═══════════════ -->
+<section class="toc">
+  <h1>Contents</h1>
+  <ol>
+    <li>The problem
+      <ul><li>Why recommendation is a missing-data problem</li><li>The three families</li></ul></li>
+    <li>The data
+      <ul><li>MovieLens — every number</li><li>The sparsity problem, quantified</li><li>Train/test split and why it is temporal</li></ul></li>
+    <li>The TMDB API key and metadata pipeline
+      <ul><li>What the key is used for</li><li>Route failover and dead IDs</li></ul></li>
+    <li>Feature engineering
+      <ul><li>Building the term document</li><li>TF-IDF and L2 normalisation</li></ul></li>
+    <li>Algorithm 1 — Content-based filtering
+      <ul><li>Rocchio profiles</li><li>Scoring and exact explanation</li></ul></li>
+    <li>Algorithm 2 — Collaborative filtering
+      <ul><li>Item-based kNN</li><li>User-based kNN</li><li>Matrix factorisation (BiasSVD)</li><li>Training procedure and hyper-parameter search</li><li>Fold-in for new users</li></ul></li>
+    <li>Algorithm 3 — Hybrid
+      <ul><li>Four blending strategies</li><li>Choosing alpha</li></ul></li>
+    <li>Evaluation
+      <ul><li>Metrics and what each answers</li><li>Results</li><li>How to read the table</li></ul></li>
+    <li>Engineering decisions
+      <ul><li>Ranking is not rating prediction</li><li>Serving, caching and performance</li><li>Bugs found and fixed</li></ul></li>
+    <li>Limitations and future work</li>
+    <li>Interview question bank
+      <ul><li>Conceptual · Data · Content-based · Collaborative · Training · Evaluation · Engineering · Hard follow-ups</li></ul></li>
+  </ol>
+</section>
+
+<!-- ═══════════════ 1 ═══════════════ -->
+<h1>1 · The problem</h1>
+
+<h2>1.1 Recommendation is a missing-data problem</h2>
+<p>The entire task can be stated in one sentence: <b>given a matrix that is almost entirely empty,
+predict the empty cells.</b></p>
+<p>The rating matrix here is 610 viewers by 9,724 films — <b>5,931,640 cells</b>. Only
+<b>100,836</b> of them contain a rating. That is <b>1.70%</b> filled. Every recommendation this
+system makes is an educated guess about part of the remaining <b>98.30%</b>.</p>
+
+<figure>
+  <img src="screenshots/01-browse.jpg" alt="The Browse view" />
+  <figcaption>The Browse view. The billboard shows the hybrid's top pick with both underlying
+  signals exposed: collaborative filtering predicted <b>5.00</b> for this film while the content
+  model scored it only <b>0.067</b>. The interface states which approach carried the pick rather
+  than presenting an unexplained ranking.</figcaption>
+</figure>
+
+<h2>1.2 The three families</h2>
+<table>
+  <tr><th>Approach</th><th>What it reads</th><th>Strength</th><th>Failure mode</th></tr>
+  <tr><td><b>Content-based</b></td><td>Down a column — the film's own attributes</td>
+      <td>Works from the first rating; reaches the long tail</td>
+      <td>Can only return more of the same; cannot surprise</td></tr>
+  <tr><td><b>Collaborative</b></td><td>Across rows — who rated what</td>
+      <td>Finds genuine discoveries metadata could never suggest</td>
+      <td>A new user or new film has no row or column — <i>cold start</i></td></tr>
+  <tr><td><b>Hybrid</b></td><td>Both</td>
+      <td>Covers each one's blind spot; wins on both metrics here</td>
+      <td>Inherits the cost of both; the blend weight must be tuned</td></tr>
+</table>
+
+<div class="callout">
+  <span class="lbl">The central claim, measured</span>
+  The hybrid is not assumed to be better — it is <b>measured</b> to be better. Content + item-kNN
+  scores <b>0.0904</b> Precision@10 against <b>0.0840</b> for item-kNN alone and <b>0.0228</b> for
+  content alone. It beats both of its own parents on the same held-out data.
+</div>
+
+<!-- ═══════════════ 2 ═══════════════ -->
+<h1 class="pb">2 · The data</h1>
+
+<h2>2.1 MovieLens — every number</h2>
+<p>The dataset is <b>MovieLens <span class="mono">ml-latest-small</span></b>, published by GroupLens
+Research at the University of Minnesota. It is downloaded automatically on first run from
+<span class="mono">files.grouplens.org</span> (about 1 MB zipped) and is not redistributed with the
+source.</p>
+
+<table>
+  <tr><th>Quantity</th><th class="num">Value</th><th>Note</th></tr>
+  <tr><td>Viewers (users)</td><td class="num"><b>610</b></td><td>each with a full rating history</td></tr>
+  <tr><td>Films</td><td class="num"><b>9,724</b></td><td>only films carrying at least one rating are kept</td></tr>
+  <tr><td>Ratings</td><td class="num"><b>100,836</b></td><td>the entire signal available</td></tr>
+  <tr><td>Matrix cells</td><td class="num">5,931,640</td><td>610 × 9,724</td></tr>
+  <tr><td>Density</td><td class="num"><b>1.70%</b></td><td>98.30% unknown</td></tr>
+  <tr><td>Rating scale</td><td class="num">0.5 – 5.0</td><td>half-star steps, 10 possible values</td></tr>
+  <tr><td>Global mean rating</td><td class="num">3.502</td><td>used as μ in the bias model</td></tr>
+  <tr><td>Genres</td><td class="num">19</td><td>plus a "no genres listed" bucket</td></tr>
+  <tr><td>Community tags</td><td class="num">3,683</td><td>free-text, user-supplied</td></tr>
+  <tr><td>Ratings per viewer</td><td class="num">20 / 70 / 2,698</td><td>minimum / median / maximum</td></tr>
+</table>
+
+<p>The four source files are <span class="mono">ratings.csv</span>,
+<span class="mono">movies.csv</span>, <span class="mono">links.csv</span> (which carries the TMDB
+and IMDb IDs) and <span class="mono">tags.csv</span>.</p>
+
+<h2>2.2 The sparsity problem, quantified</h2>
+<p>Sparsity is not a footnote — it is the reason the problem is hard. Even the <i>densest corner</i>
+of this matrix (the 26 busiest viewers against the 40 most-rated films) is only about 86% filled,
+and that is a deliberately cherry-picked corner. Across the whole grid it is 1.7%.</p>
+<p>The practical consequences:</p>
+<ul>
+  <li>Most film pairs have <b>very few co-raters</b>, so a naive similarity is dominated by noise.
+      This is what <i>significance shrinkage</i> exists to fix.</li>
+  <li>Most users overlap on <b>very few films</b>, so user-user correlation is unstable.</li>
+  <li>A model that recommends only popular items scores deceptively well, because popular items are
+      the ones with data. This is why <b>coverage</b> and <b>novelty</b> are reported alongside
+      accuracy.</li>
+</ul>
+
+<h2>2.3 The train/test split, and why it is temporal</h2>
+<table>
+  <tr><th>Property</th><th>Value</th></tr>
+  <tr><td>Training ratings</td><td><b>80,672</b> (80%)</td></tr>
+  <tr><td>Held-out ratings</td><td><b>20,164</b> (20%)</td></tr>
+  <tr><td>Method</td><td><b>Per-user temporal holdout</b> — the newest 20% of <i>each</i> viewer's history</td></tr>
+  <tr><td>Relevance threshold</td><td>held-out rating <b>≥ 4.0</b> counts as a hit</td></tr>
+  <tr><td>Guard</td><td>users with ≤ 6 ratings contribute no test items, so no user is left with nothing to learn from</td></tr>
+</table>
+
+<div class="note">
+  <span class="lbl">Why not a random split?</span>
+  A random split lets the model observe a user's <i>future</i> ratings while predicting their
+  <i>past</i>. That leaks information and inflates every metric. A temporal split asks the honest
+  question — "given everything this person has rated so far, what will they like next?" — and is
+  strictly harder. Expect the RMSE figures here to read slightly worse than published random-split
+  numbers on the same dataset; they are not measuring the same thing.
+</div>
+
+<p>Two separate sets of models are kept in memory:</p>
+<ul>
+  <li><b>Serving models</b> trained on all 100,836 ratings — used for live recommendations.</li>
+  <li><b>Evaluation models</b> trained on the 80% split only — used for the metrics table, so
+      nothing is ever scored on data it was trained on.</li>
+</ul>
+
+<!-- ═══════════════ 3 ═══════════════ -->
+<h1 class="pb">3 · The TMDB API key and metadata pipeline</h1>
+
+<h2>3.1 What the key is used for</h2>
+<p>The system uses <b>one external API: TMDB (The Movie Database)</b>. A single free API key is
+required. It is used for two distinct purposes:</p>
+<ol>
+  <li><b>Presentation</b> — posters, backdrops, synopses, runtimes and TMDB's own rating.</li>
+  <li><b>Modelling</b> — keywords, cast and directors become <i>features</i>. This is the important
+      part: the content model has <b>19.6 terms per film</b> with TMDB enrichment and only
+      <b>5.0</b> without it. Nearly three-quarters of the content signal comes from this API.</li>
+</ol>
+
+<table>
+  <tr><th>Property</th><th>Value</th></tr>
+  <tr><td>Provider</td><td>TMDB — <span class="mono">api.themoviedb.org/3</span></td></tr>
+  <tr><td>Auth method</td><td>API key as a query parameter (<span class="mono">?api_key=…</span>)</td></tr>
+  <tr><td>Endpoint used</td><td><span class="mono">/movie/{id}?append_to_response=credits,keywords</span></td></tr>
+  <tr><td>Films enriched</td><td><b>9,700 of 9,724</b> (99.75%)</td></tr>
+  <tr><td>Observed throughput</td><td>~2.7 films/second (latency-bound, not CPU-bound)</td></tr>
+  <tr><td>Storage</td><td>one JSON disk cache; each film fetched exactly once, ever</td></tr>
+</table>
+
+<div class="callout">
+  <span class="lbl">Key handling</span>
+  The key lives in <span class="mono">config.json</span>, which is <b>gitignored</b> and never
+  committed. A <span class="mono">config.example.json</span> ships with every hyper-parameter but a
+  blank key. The key may alternatively be supplied through the
+  <span class="mono">TMDB_API_KEY</span> environment variable. With no key found anywhere the
+  application disables posters and still runs every algorithm, metric and explanation end to end.
+</div>
+
+<h2>3.2 Route failover</h2>
+<p>Several ISPs — notably a number in India — DNS-poison <span class="mono">api.themoviedb.org</span>
+(it resolves to a sinkhole address) while leaving the image CDN reachable. The client detects this
+and tries three routes in order, remembering the winner for 24 hours:</p>
+<ol>
+  <li><span class="mono">api.themoviedb.org</span> — the normal host.</li>
+  <li><span class="mono">api.tmdb.org</span> — TMDB's legacy alias, usually not on block lists.</li>
+  <li>The real IP address, resolved over <b>DNS-over-HTTPS</b> (Cloudflare, then Google), connected
+      with <b>pinned SNI</b> and full certificate verification — so security is not weakened to work
+      around the block.</li>
+</ol>
+
+<h2>3.3 Dead IDs and title-search recovery</h2>
+<p>MovieLens' <span class="mono">links.csv</span> was generated years ago. <b>106</b> of its TMDB IDs
+now return HTTP 404 — entries have been merged, deleted or re-issued, and several titles
+(<i>Roots</i>, <i>Generation War</i>, <i>Over the Garden Wall</i>) are miniseries that were never in
+TMDB's <span class="mono">/movie</span> namespace at all.</p>
+<p>When an ID fails, the client falls back to a title-and-year search across both
+<span class="mono">/search/movie</span> and <span class="mono">/search/tv</span>, preferring a result
+that actually carries artwork. This recovered <b>91 of the 106</b>. The remaining <b>15</b> receive a
+deliberate placeholder card rather than a blank.</p>
+
+<!-- ═══════════════ 4 ═══════════════ -->
+<h1 class="pb">4 · Feature engineering</h1>
+
+<h2>4.1 Building the term document</h2>
+<p>Each film is converted into a "bag of terms". Field importance is expressed by <b>repeating a
+token</b>, which is how weighting works inside a bag-of-words model.</p>
+
+<table>
+  <tr><th>Source</th><th class="num">Weight</th><th>Prefix</th><th>Example token</th></tr>
+  <tr><td>Genres</td><td class="num">×3</td><td><span class="mono">g_</span></td><td><span class="mono">g_crime</span></td></tr>
+  <tr><td>Community tags</td><td class="num">×2</td><td><span class="mono">t_</span></td><td><span class="mono">t_pixar</span></td></tr>
+  <tr><td>TMDB keywords</td><td class="num">×2</td><td><span class="mono">k_</span></td><td><span class="mono">k_neo_noir</span></td></tr>
+  <tr><td>Director</td><td class="num">×2</td><td><span class="mono">d_</span></td><td><span class="mono">d_martin_scorsese</span></td></tr>
+  <tr><td>Cast (top 6)</td><td class="num">×1</td><td><span class="mono">c_</span></td><td><span class="mono">c_robert_de_niro</span></td></tr>
+  <tr><td>Decade</td><td class="num">×1</td><td><span class="mono">decade_</span></td><td><span class="mono">decade_1990s</span></td></tr>
+  <tr><td>Title words (&gt; 3 chars)</td><td class="num">×1</td><td><span class="mono">w_</span></td><td><span class="mono">w_godfather</span></td></tr>
+</table>
+
+<p>Prefixes keep namespaces separate — a genre called "drama" and a tag called "drama" are
+deliberately different features, because they carry different reliability.</p>
+
+<h2>4.2 TF-IDF and L2 normalisation</h2>
+<pre><code>TfidfVectorizer(
+    analyzer="word",
+    token_pattern=r"[^ ]+",   # tokens are pre-built, do not re-split
+    sublinear_tf=True,        # 1 + log(tf) — a 3rd genre repeat adds less than the 1st
+    min_df=2,                 # drop terms appearing in only one film (no generalisation)
+    max_df=0.6,               # drop terms in >60% of films (no discrimination)
+)</code></pre>
+
+<table>
+  <tr><th>Property</th><th class="num">Value</th></tr>
+  <tr><td>Distinct terms in the vocabulary</td><td class="num"><b>21,789</b></td></tr>
+  <tr><td>Non-zero weights in the matrix</td><td class="num"><b>190,614</b></td></tr>
+  <tr><td>Average terms per film</td><td class="num"><b>19.6</b></td></tr>
+  <tr><td>Matrix shape</td><td class="num">9,724 × 21,789 (sparse)</td></tr>
+  <tr><td>Build time</td><td class="num">~1.6 s</td></tr>
+</table>
+
+<div class="note">
+  <span class="lbl">Why L2-normalise?</span>
+  After L2 normalisation every film vector has length 1, so
+  <span class="mono">cos(a, b) = a · b</span> — cosine similarity collapses into a plain dot product.
+  This is not only faster; it is what makes the explanation <b>exact</b>. Since the score is a sum of
+  per-term products, each term's contribution is a real number and those numbers sum precisely to the
+  displayed score.
+</div>
+
+<!-- ═══════════════ 5 ═══════════════ -->
+<h1 class="pb">5 · Algorithm 1 — Content-based filtering</h1>
+
+<p>Content-based filtering answers: <i>"what is this film about, and what else is about the same
+thing?"</i> It reads only item metadata and <b>never consults another user</b>.</p>
+
+<h2>5.1 The Rocchio user profile</h2>
+<p>A user is represented by a single vector in the same term space as the films. Films rated above
+that user's personal mean pull the profile toward them; films below push it away.</p>
+
+<pre><code>w_i     = (r_i − mean_u) / sd_u          # signed weight per rated film
+profile = normalise( Σ_i  w_i · v_i )    # sum of weighted film vectors, then L2</code></pre>
+
+<p>Two details that matter:</p>
+<ul>
+  <li>Dividing by the user's own standard deviation makes a generous rater and a harsh rater
+      comparable. Without it, someone who rates everything 4–5 would have an almost meaningless
+      profile.</li>
+  <li>A user with zero spread (all ratings identical) would produce a zero vector, so a small
+      positive floor (0.15) is applied — their profile becomes a plain average of what they rated.</li>
+</ul>
+
+<h2>5.2 Scoring and explanation</h2>
+<pre><code>score(j) = cos(profile, v_j) = Σ_t  profile[t] × tfidf_j[t]</code></pre>
+
+<p>Because the profile is itself a linear combination of the films the user rated, the score
+decomposes <b>twice</b> — and both decompositions are exact:</p>
+
+<h4>By term</h4>
+<pre><code>crime            0.284 × 0.311 = 0.0883
+neo-noir         0.198 × 0.276 = 0.0547
+Martin Scorsese  0.162 × 0.244 = 0.0395
+                                --------
+                          score  0.xxxx</code></pre>
+
+<h4>By source film ("because you rated…")</h4>
+<pre><code>score(j) = Σ_i  (w_i / ‖p‖) · (v_i · v_j)</code></pre>
+<p>This attributes the recommendation back to the specific films that caused it. In the running
+example, rating <i>Fargo</i> highly is what surfaces <i>The Man Who Wasn't There</i> and
+<i>The Big Lebowski</i> — the Coen brothers connection travels through the
+<span class="mono">d_joel_coen</span> feature.</p>
+
+<div class="callout">
+  <span class="lbl">The ceiling of this approach</span>
+  The output is a mirror of what the user already rated. That is not a bug — it is the definition.
+  A content model has no mechanism for discovering anything outside the user's existing profile.
+  Measured: highest coverage (<b>18.4%</b>, eight times any other model) and highest novelty
+  (<b>6.84</b>), but the weakest Precision@10 (<b>0.0228</b>). Cold start, however, is a non-issue:
+  it works from the user's very first rating.
+</div>
+
+<!-- ═══════════════ 6 ═══════════════ -->
+<h1 class="pb">6 · Algorithm 2 — Collaborative filtering</h1>
+
+<p>Collaborative filtering ignores what a film <i>is</i> entirely. Two films are similar because the
+same people rated them the same way. This is where genuine surprises come from — and why a brand-new
+film is invisible to it.</p>
+
+<h2>6.1 Item-based kNN</h2>
+<p><i>Sarwar, Karypis, Konstan &amp; Riedl (2001).</i></p>
+
+<h4>Step 1 — mean-centre per user</h4>
+<p>Raw cosine between two film columns is dominated by the fact that some users rate everything
+highly. Subtracting each user's mean first removes that. The result is called
+<b>adjusted cosine similarity</b>.</p>
+
+<h4>Step 2 — significance shrinkage</h4>
+<pre><code>sim'(i,j) = sim(i,j) × n_common / (n_common + λ)        λ = 25</code></pre>
+<p>A similarity of 0.9 computed from 3 co-raters is not evidence; a similarity of 0.6 from 300
+co-raters is. Shrinkage scales a similarity toward zero in proportion to how little data backs it.
+With λ = 25, a pair with 25 co-raters keeps half its similarity.</p>
+
+<h4>Step 3 — keep the top k neighbours</h4>
+<p>Similarities are computed in column blocks of 512 to bound memory (a full 9,724 × 9,724 dense
+matrix would be 378 MB), and only the top <b>k = 40</b> per film are stored — giving a sparse matrix
+with <b>386,434</b> non-zero entries. Build time ≈ 10 s, then cached to disk.</p>
+
+<h4>Prediction</h4>
+<pre><code>r̂(u,i) = mean_u + Σ_j sim(i,j)·(r_uj − mean_u) / Σ_j |sim(i,j)|</code></pre>
+
+<h2>6.2 User-based kNN</h2>
+<p><i>Resnick, Iacovou, Suchak, Bergstrom &amp; Riedl — GroupLens (1994).</i> The original
+collaborative filtering algorithm. Pearson correlation between mean-centred user rows, same
+shrinkage, with a <b>fixed neighbourhood</b> of the k = 40 most similar users chosen once per user.</p>
+<pre><code>r̂(u,i) = mean_u + Σ_v sim(u,v)·(r_vi − mean_v) / Σ_v |sim(u,v)|</code></pre>
+<p>Because there are only 610 users, the full 610 × 610 similarity matrix fits comfortably in memory
+and is computed in under 0.1 s — the opposite of the item side, where 9,724 items force block
+processing.</p>
+
+<h2>6.3 Matrix factorisation — BiasSVD</h2>
+<p><i>Funk (2006) / Koren, Bell &amp; Volinsky (2009).</i> The model family that won the Netflix
+Prize. Implemented from scratch in NumPy rather than imported, so its internals can be exposed in
+the interface.</p>
+
+<pre><code>r̂(u,i) = μ + b_u + b_i + p_u · q_i</code></pre>
+
+<table>
+  <tr><th>Term</th><th>Meaning</th><th>Shape</th></tr>
+  <tr><td><span class="mono">μ</span></td><td>global mean rating (3.502)</td><td>scalar</td></tr>
+  <tr><td><span class="mono">b_u</span></td><td>this user's tendency to rate high or low</td><td>610</td></tr>
+  <tr><td><span class="mono">b_i</span></td><td>this film's tendency to be liked</td><td>9,724</td></tr>
+  <tr><td><span class="mono">p_u</span></td><td>the user's taste in latent-factor space</td><td>610 × 50</td></tr>
+  <tr><td><span class="mono">q_i</span></td><td>the film's position in the same space</td><td>9,724 × 50</td></tr>
+</table>
+
+<p>The biases matter more than they look. They alone — with no factors at all — reach RMSE 0.9044,
+which is <b>better at ranking</b> than the full SVD. Everything the factors learn is the
+<i>residual</i> after biases are removed.</p>
+
+<div class="note">
+  <span class="lbl">What are the latent factors?</span>
+  Nobody labels them. The factorisation invents 50 dimensions purely to compress the rating matrix,
+  yet they land on recognisable distinctions. Inspecting factor 3 in this trained model shows
+  <i>Casablanca</i>, <i>Four Weddings and a Funeral</i> and <i>Scream</i> at one pole against
+  <i>Predator</i>, <i>Ace Ventura</i> and <i>Independence Day</i> at the other. The interface
+  projects the whole 9,724 × 50 matrix to 3D with PCA so this structure can be explored directly.
+</div>
+
+<h2>6.4 The training procedure</h2>
+<p>Trained by <b>mini-batch stochastic gradient descent</b> minimising regularised squared error:</p>
+
+<pre><code>min  Σ (r_ui − μ − b_u − b_i − p_u·q_i)²  +  λ(‖p_u‖² + ‖q_i‖² + b_u² + b_i²)</code></pre>
+
+<p>Per-example gradient updates, applied with <span class="mono">np.add.at</span> so a user
+appearing twice in one batch receives both updates:</p>
+
+<pre><code>e_ui  = r_ui − r̂_ui                       # the error
+b_u  += lr · (e_ui − reg · b_u)
+b_i  += lr · (e_ui − reg · b_i)
+p_u  += lr · (e_ui · q_i − reg · p_u)
+q_i  += lr · (e_ui · p_u − reg · q_i)</code></pre>
+
+<p>The full loop, per epoch:</p>
+<ol>
+  <li>Shuffle all 80,672 training ratings.</li>
+  <li>Slice into mini-batches of 4,096.</li>
+  <li>Compute predictions for the batch with <span class="mono">np.einsum</span>, then the errors.</li>
+  <li>Scatter-add the four updates above.</li>
+  <li>Decay the learning rate: <span class="mono">lr = lr₀ / (1 + 0.03·epoch)</span> — so late epochs
+      refine instead of oscillating.</li>
+  <li>Record training RMSE for the convergence curve.</li>
+</ol>
+
+<table>
+  <tr><th>Hyper-parameter</th><th class="num">Value</th><th>Why</th></tr>
+  <tr><td>Latent factors</td><td class="num"><b>50</b></td><td>best test RMSE in the sweep; 20 underfits, 100 does not help</td></tr>
+  <tr><td>Epochs</td><td class="num"><b>30</b></td><td>past this it overfits (see below)</td></tr>
+  <tr><td>Learning rate</td><td class="num"><b>0.007</b></td><td>decayed each epoch</td></tr>
+  <tr><td>L2 regularisation</td><td class="num"><b>0.02</b></td><td>swept; 0.05 and 0.10 were both worse</td></tr>
+  <tr><td>Mini-batch size</td><td class="num">4,096</td><td>tested 256–4,096; no measurable difference</td></tr>
+  <tr><td>Initialisation</td><td class="num">N(0, 0.05)</td><td>seed 42, fully reproducible</td></tr>
+  <tr><td>Training time</td><td class="num">~20 s</td><td>then cached to disk as <span class="mono">.npz</span></td></tr>
+</table>
+
+<h4>Hyper-parameter search</h4>
+<p>A grid over <span class="mono">n_factors ∈ {20, 50, 100} × reg ∈ {0.02, 0.05, 0.10} ×
+epochs ∈ {20, 30}</span>, scored on held-out RMSE. All 18 configurations landed between 0.889 and
+0.903 — a narrow band, which itself is informative: on data this sparse the model is
+capacity-limited, not tuning-limited.</p>
+
+<h4>Detecting overfitting</h4>
+<p>Extending to 60 epochs makes the diagnosis unambiguous:</p>
+<table>
+  <tr><th>Epochs</th><th class="num">Train RMSE</th><th class="num">Test RMSE</th><th>Verdict</th></tr>
+  <tr><td>30</td><td class="num">0.677</td><td class="num"><b>0.8892</b></td><td>chosen</td></tr>
+  <tr><td>60</td><td class="num">0.494</td><td class="num">0.8916</td><td>train keeps falling, test rises — overfitting</td></tr>
+</table>
+
+<h2>6.5 Fold-in — serving a brand-new user</h2>
+<p>A user who did not exist at training time has no <span class="mono">p_u</span>. Retraining the
+whole model for every new signup is not viable. Instead the item factors <b>Q</b> are frozen and
+only the new user's parameters are solved — a small ridge regression in closed form:</p>
+
+<pre><code>b_u = mean( r − μ − b_i − Q_r·p )                  # bias update
+p   = (Q_rᵀ Q_r + λI)⁻¹ Q_rᵀ e     where e = r − μ − b_u − b_i</code></pre>
+
+<p>Alternated 8 times. With 50 factors this is a 50 × 50 solve — microseconds. This is what lets the
+interface create a new viewer, take a handful of ratings, and immediately produce collaborative
+recommendations without touching the trained model.</p>
+
+<!-- ═══════════════ 7 ═══════════════ -->
+<h1 class="pb">7 · Algorithm 3 — Hybrid</h1>
+
+<p>The two families fail in opposite directions. Content-based cannot surprise; collaborative cannot
+start. A hybrid exists to let each cover the other's blind spot. Four strategies from
+<b>Burke's (2002)</b> taxonomy are implemented.</p>
+
+<h2>7.1 The four strategies</h2>
+<table>
+  <tr><th>Strategy</th><th>Mechanism</th><th>When it is the right choice</th></tr>
+  <tr><td><b>Weighted</b></td>
+      <td>min–max normalise both signals to [0,1], then <span class="mono">α·CF + (1−α)·content</span></td>
+      <td>Default. Simple, tunable, and the blend is inspectable.</td></tr>
+  <tr><td><b>Switching</b></td>
+      <td>Pick one model per user based on how much evidence exists</td>
+      <td>Cold start. Below 8 ratings it uses content and says so.</td></tr>
+  <tr><td><b>Rank fusion</b></td>
+      <td>Reciprocal rank fusion: <span class="mono">Σ 1/(k + rank)</span>, k = 60</td>
+      <td>When the two score scales are not comparable at all.</td></tr>
+  <tr><td><b>Cascade</b></td>
+      <td>Collaborative shortlists ~150 candidates, content re-ranks inside that pool</td>
+      <td>When collaborative has good recall but poor ordering.</td></tr>
+</table>
+
+<div class="note">
+  <span class="lbl">The normalisation problem</span>
+  A cosine similarity lives in [0, 1]; a predicted rating lives in [0.5, 5]. They cannot simply be
+  added. Both are min–max normalised across the candidate set first, and the interface displays the
+  raw values <i>and</i> the ranges used, so the transformation is visible rather than hidden.
+</div>
+
+<h2>7.2 Choosing alpha</h2>
+<p>α was selected by sweeping it against NDCG@10 on the held-out split, for each choice of
+collaborative component:</p>
+
+<table>
+  <tr><th>CF component</th><th class="num">α = 0.0</th><th class="num">0.30</th><th class="num">0.50</th><th class="num">0.70</th><th class="num">0.85</th><th class="num">1.0</th></tr>
+  <tr><td><b>item-kNN</b> (NDCG@10)</td><td class="num">0.0208</td><td class="num">0.0945</td><td class="num">0.1150</td><td class="num"><b>0.1161</b></td><td class="num">0.1127</td><td class="num">0.1104</td></tr>
+  <tr><td><b>SVD</b> (NDCG@10)</td><td class="num">0.0208</td><td class="num">0.0497</td><td class="num">0.0525</td><td class="num">0.0425</td><td class="num">0.0364</td><td class="num">0.0329</td></tr>
+</table>
+
+<p>Two conclusions. First, <b>α = 0.70 with item-kNN</b> is the peak, and it beats both endpoints —
+which is the whole point of hybridising. Second, the choice of collaborative component matters more
+than α does: item-kNN is roughly twice as good as SVD at this task regardless of blend weight.</p>
+
+<p><b>Cold-start threshold = 8 ratings.</b> Below that, the switching hybrid falls back to content
+and states the reason in the interface.</p>
+
+<!-- ═══════════════ 8 ═══════════════ -->
+<h1 class="pb">8 · Evaluation</h1>
+
+<h2>8.1 Metrics and what each answers</h2>
+<table>
+  <tr><th>Metric</th><th>Question it answers</th><th>Family</th></tr>
+  <tr><td><b>RMSE / MAE</b></td><td>When it predicted 4.2, how close was the true rating?</td><td>Rating accuracy</td></tr>
+  <tr><td><b>Precision@10</b></td><td>Of the 10 films shown, how many were actually rated ≥ 4?</td><td>Ranking</td></tr>
+  <tr><td><b>Recall@10</b></td><td>Of everything the user went on to love, how much did the top 10 catch?</td><td>Ranking</td></tr>
+  <tr><td><b>NDCG@10</b></td><td>Like precision, but rewards putting good films <i>higher</i></td><td>Ranking</td></tr>
+  <tr><td><b>MAP@10</b></td><td>Mean average precision — order-sensitive across the whole list</td><td>Ranking</td></tr>
+  <tr><td><b>Hit rate</b></td><td>Fraction of users who got at least one good film</td><td>Ranking</td></tr>
+  <tr><td><b>Coverage</b></td><td>Share of the 9,724-film catalogue ever recommended to anyone</td><td>Beyond-accuracy</td></tr>
+  <tr><td><b>Novelty</b></td><td>Mean −log₂(popularity) — is it digging into the long tail?</td><td>Beyond-accuracy</td></tr>
+  <tr><td><b>Diversity</b></td><td>1 − mean pairwise content similarity inside one list</td><td>Beyond-accuracy</td></tr>
+</table>
+
+<p>Ranking protocol: for each user, score <b>every</b> item not in their training set, take the top
+10, and compare against their held-out items with rating ≥ 4. This is the strict "all unrated items"
+protocol — no negative sampling, which would make the numbers look far better and mean far less.</p>
+
+<h2>8.2 Results</h2>
+<table>
+  <tr><th>Model</th><th class="num">RMSE ↓</th><th class="num">MAE ↓</th><th class="num">Prec@10 ↑</th>
+      <th class="num">NDCG@10 ↑</th><th class="num">Hit rate ↑</th><th class="num">Coverage</th><th class="num">Novelty</th></tr>
+  <tr><td>Bias baseline</td><td class="num">0.9044</td><td class="num">0.6995</td><td class="num">0.0446</td>
+      <td class="num">0.0535</td><td class="num">0.2652</td><td class="num">0.7%</td><td class="num">2.38</td></tr>
+  <tr><td>Content-based (TF-IDF)</td><td class="num">0.9293</td><td class="num">0.7119</td><td class="num">0.0228</td>
+      <td class="num">0.0282</td><td class="num">0.1841</td><td class="num best">18.4%</td><td class="num best">6.84</td></tr>
+  <tr><td>Item-based kNN</td><td class="num">0.9376</td><td class="num">0.7016</td><td class="num">0.0840</td>
+      <td class="num">0.1104</td><td class="num">0.4139</td><td class="num">6.0%</td><td class="num">2.53</td></tr>
+  <tr><td>User-based kNN</td><td class="num">0.9396</td><td class="num">0.7148</td><td class="num">0.0828</td>
+      <td class="num">0.1081</td><td class="num best">0.4544</td><td class="num">2.7%</td><td class="num">2.05</td></tr>
+  <tr><td>Matrix factorisation (SVD)</td><td class="num">0.8893</td><td class="num">0.6830</td><td class="num">0.0285</td>
+      <td class="num">0.0329</td><td class="num">0.2027</td><td class="num">2.2%</td><td class="num">4.12</td></tr>
+  <tr><td><b>Hybrid (content + item-kNN)</b></td><td class="num">0.8933</td><td class="num">0.6729</td>
+      <td class="num best">0.0904</td><td class="num best">0.1167</td><td class="num">0.4307</td>
+      <td class="num">6.5%</td><td class="num">2.61</td></tr>
+  <tr><td><b>Hybrid (content + SVD)</b></td><td class="num best">0.8683</td><td class="num best">0.6650</td>
+      <td class="num">0.0346</td><td class="num">0.0426</td><td class="num">0.2196</td>
+      <td class="num">2.5%</td><td class="num">4.04</td></tr>
+</table>
+
+<h2>8.3 How to read that table</h2>
+<h4>1. The hybrid beats both of its own parents</h4>
+<p>0.0904 against 0.0840 (item-kNN alone) and 0.0228 (content alone). Measured on held-out data, not
+asserted. This is the single most important result in the project.</p>
+
+<h4>2. Rating accuracy and ranking quality are different problems</h4>
+<p>SVD has the best RMSE of any single model yet ranks <b>worse</b> than item-kNN — which in turn
+predicts ratings <b>worse</b> than the trivial bias baseline. Optimising one does not give you the
+other. Any project that reports only RMSE is answering a question users do not care about: nobody
+sees a predicted rating, they see a list.</p>
+
+<h4>3. Accuracy is not the only axis</h4>
+<p>The content model loses nearly every accuracy column but has <b>eight times</b> the catalogue
+coverage and by far the highest novelty. The bias baseline, meanwhile, recommends the same ~63 films
+to all 610 users (0.7% coverage) and still beats content on precision — because popularity is a
+genuinely strong signal and popular items are the ones with data. A production system that shipped
+the baseline would be accurate and useless.</p>
+
+<!-- ═══════════════ 9 ═══════════════ -->
+<h1 class="pb">9 · Engineering decisions</h1>
+
+<h2>9.1 Ranking is not rating prediction</h2>
+<p>This is the most consequential decision in the project, and it began as a bug.</p>
+<p>The obvious way to build a top-N list is to predict a rating for every item and sort descending.
+It is also wrong, for two reasons:</p>
+<ul>
+  <li><b>Clipping creates ties.</b> Predictions are clipped to [0.5, 5.0]. Hundreds of items hit
+      exactly 5.00, and <span class="mono">argsort</span> then breaks those ties by array index —
+      which is not a ranking at all.</li>
+  <li><b>Normalising destroys evidence.</b> Dividing by <span class="mono">Σ|sim|</span> is required
+      for a calibrated rating, but it lets an item supported by <i>one weak neighbour</i> reach 5.0
+      and tie with an item supported by forty strong ones.</li>
+</ul>
+<p>The symptom was item-kNN recommending films with 1–3 ratings in the entire dataset. The fix is to
+use the <b>un-normalised similarity-weighted sum</b> for ranking — the classic top-N formulation of
+<b>Deshpande &amp; Karypis (2004)</b> — while keeping the normalised value for display:</p>
+<pre><code>rank(u,i)  = Σ_j sim(i,j) · (r_uj − mean_u)          # evidence strength, for ordering
+r̂(u,i)     = mean_u + Σ_j sim·dev / Σ_j |sim|        # calibrated rating, for display</code></pre>
+
+<div class="callout">
+  <span class="lbl">Impact</span>
+  Item-kNN Precision@10 went from <b>0.002 to 0.084</b> — a 38× improvement from a single modelling
+  decision, with no change to the similarity computation. Both code paths are verified to produce
+  identical numbers where they overlap, so the arithmetic shown in the interface is always the
+  arithmetic the ranking actually used.
+</div>
+
+<h2>9.2 Serving, caching and performance</h2>
+<table>
+  <tr><th>Stage</th><th class="num">Cold</th><th class="num">Warm</th><th>Mechanism</th></tr>
+  <tr><td>MovieLens load</td><td class="num">0.5 s</td><td class="num">0.5 s</td><td>pandas</td></tr>
+  <tr><td>TF-IDF build</td><td class="num">1.6 s</td><td class="num">1.6 s</td><td>scikit-learn</td></tr>
+  <tr><td>Item-kNN similarity</td><td class="num">10 s</td><td class="num">0.03 s</td><td>sparse <span class="mono">.npz</span> on disk</td></tr>
+  <tr><td>SVD training</td><td class="num">20 s</td><td class="num">0.03 s</td><td>factors cached as <span class="mono">.npz</span></td></tr>
+  <tr><td>Full evaluation</td><td class="num">60 s</td><td class="num">0.01 s</td><td>results cached as JSON, keyed on config</td></tr>
+  <tr><td><b>Total startup</b></td><td class="num"><b>~2 min</b></td><td class="num"><b>~1.6 s</b></td><td></td></tr>
+</table>
+<p>Every API endpoint responds in under 0.3 s. One optimisation was significant: the content
+explanation originally looped one sparse dot product per rated film, taking <b>12.2 s</b> for a user
+with 2,698 ratings. Vectorising it into a single matrix product brought that to <b>0.25 s</b> — a
+49× speedup with identical output.</p>
+
+<h2>9.3 Notable bugs found and fixed</h2>
+<table>
+  <tr><th>Bug</th><th>Symptom</th><th>Cause</th></tr>
+  <tr><td>Ranking by predicted rating</td><td>Prec@10 of 0.002; films with 1 rating at the top</td>
+      <td>Clipping ties + normalisation erasing evidence strength</td></tr>
+  <tr><td>Content explanation 12.2 s</td><td>UI appeared to hang</td><td>Python loop instead of one matrix product</td></tr>
+  <tr><td>numpy.bool_ 500 error</td><td>SVD endpoint returned HTTP 500</td>
+      <td><span class="mono">np.bool_</span> is not JSON-serialisable</td></tr>
+  <tr><td>Grid overflow on mobile</td><td>Horizontal page scroll</td>
+      <td>CSS grid items default to <span class="mono">min-width:auto</span></td></tr>
+  <tr><td>Stale ES modules</td><td>App failed to boot after an edit</td>
+      <td>Versioning the entry point does not version its imports</td></tr>
+</table>
+
+<!-- ═══════════════ 10 ═══════════════ -->
+<h1 class="pb">10 · Limitations and future work</h1>
+
+<h3>Limitations</h3>
+<ul>
+  <li><b>Scale.</b> 610 users is tiny. Item-kNN similarity is O(n²) in items and would not survive a
+      real catalogue without approximate nearest neighbours (LSH, FAISS, ScaNN).</li>
+  <li><b>Explicit ratings only.</b> Real systems are dominated by implicit feedback — clicks, watch
+      time, skips — where an absent signal is ambiguous rather than negative.</li>
+  <li><b>No temporal dynamics.</b> Taste drifts. The model treats a rating from 1996 and one from
+      2018 identically. Koren's timeSVD++ addresses exactly this.</li>
+  <li><b>No context.</b> Time of day, device and companions all matter and none are modelled.</li>
+  <li><b>Offline metrics only.</b> Precision@10 against held-out ratings is a proxy. It cannot
+      measure whether a recommendation <i>caused</i> a view; only an online experiment can.</li>
+  <li><b>Popularity bias.</b> Present and measured (via coverage and novelty) but not corrected —
+      no inverse-propensity weighting or re-ranking for diversity.</li>
+</ul>
+
+<h3>What I would do next</h3>
+<ol>
+  <li><b>Implicit-feedback ALS</b> (Hu, Koren &amp; Volinsky 2008) with confidence weighting — the
+      formulation that actually matches production data.</li>
+  <li><b>BPR</b> (Bayesian Personalised Ranking) — optimise the ranking objective directly instead
+      of squared error, which is the mismatch section 9.1 works around.</li>
+  <li><b>Two-stage architecture</b> — cheap candidate generation over millions of items, then an
+      expensive re-ranker over a few hundred. This is how every production system is built.</li>
+  <li><b>Learn the blend</b> instead of fixing α — a small model over both signals plus context.</li>
+  <li><b>Online A/B testing</b> with interleaving, measuring long-dwell watches rather than clicks.</li>
+</ol>
+
+<!-- ═══════════════ 11 · INTERVIEW ═══════════════ -->
+<h1 class="pb">11 · Interview question bank</h1>
+<p>Questions an interviewer is likely to ask about this project, with answers grounded in what was
+actually built and measured.</p>
+
+<div class="qcat">A · Conceptual foundations</div>
+
+<div class="qa"><div class="q">Explain the difference between content-based and collaborative filtering.</div>
+<div class="a"><p>Content-based reads <i>down a column</i> of the rating matrix: it describes each
+item by its own attributes — genre, cast, director, keywords — and recommends items whose
+description resembles what the user already liked. It never looks at another user.</p>
+<p>Collaborative filtering reads <i>across rows</i>: it ignores what an item <i>is</i> and asks only
+who rated what. Two films become similar because the same people rated them alike, even if they
+share no metadata whatsoever. That is precisely why it can produce surprises — and why it is
+helpless when an item has no ratings yet.</p></div></div>
+
+<div class="qa"><div class="q">What is the cold-start problem, and which of your models suffer from it?</div>
+<div class="a"><p>Cold start is having no data to reason from. It has three forms: a new user, a new
+item, and a new system.</p>
+<p>All three collaborative models suffer badly — with no row or column there is nothing to correlate.
+Content-based does not: it works from the user's very first rating, because the item vectors exist
+independently of any ratings. That asymmetry is the main practical argument for hybridising. In this
+project the switching hybrid makes it explicit: below 8 ratings it falls back to content and displays
+the reason.</p></div></div>
+
+<div class="qa"><div class="q">Why does a hybrid beat both of its components?</div>
+<div class="a"><p>Because their errors are not correlated. Content-based fails on items whose
+metadata does not capture why people like them; collaborative fails on items nobody has rated. When
+two models fail on different inputs, blending recovers cases either would miss alone.</p>
+<p>Measured here: content + item-kNN reaches <b>0.0904</b> Prec@10 against 0.0840 and 0.0228 for the
+parents. The three-way list comparison in the interface shows why — the content and collaborative
+top-10s frequently share <b>zero</b> films. If they agreed, blending would add nothing.</p></div></div>
+
+<div class="qa"><div class="q">What is the sparsity problem?</div>
+<div class="a"><p>Only 1.7% of this matrix is filled — 100,836 ratings in 5,931,640 cells. The
+consequence is that most item pairs share very few co-raters, so a raw similarity is mostly noise: a
+correlation of 0.95 computed from three overlapping users is meaningless. It is why significance
+shrinkage is not optional, and why models that quietly fall back to popularity can score
+well.</p></div></div>
+
+<div class="qcat">B · The data</div>
+
+<div class="qa"><div class="q">Describe your dataset.</div>
+<div class="a"><p>MovieLens <span class="mono">ml-latest-small</span> from GroupLens at the
+University of Minnesota: <b>610 users</b>, <b>9,724 films</b>, <b>100,836 ratings</b> on a 0.5–5.0
+scale in half-star steps. Density 1.7%, global mean 3.502. Each user has at least 20 ratings; the
+median is 70 and the heaviest user has 2,698. Metadata is enriched from TMDB, covering 9,700 of the
+9,724 films.</p></div></div>
+
+<div class="qa"><div class="q">Why a temporal split instead of a random one?</div>
+<div class="a"><p>A random split lets the model see a user's future while predicting their past.
+That is leakage: knowing someone loved <i>The Godfather Part III</i> makes predicting their rating of
+<i>Part II</i> much easier, and the resulting numbers do not reflect deployment.</p>
+<p>I hold out the newest 20% of <i>each</i> user's history, which mirrors the real question — given
+everything so far, what next? It is strictly harder, so my RMSEs read slightly worse than published
+random-split figures on the same data. I would rather report an honest 0.889 than a flattering
+0.85.</p></div></div>
+
+<div class="qa"><div class="q">How did you decide what counts as a "relevant" item?</div>
+<div class="a"><p>A held-out rating of <b>≥ 4.0</b>. It is the conventional threshold on a 5-point
+scale and matches the intuition of "would actually recommend". I score against every item not in the
+user's training set rather than sampling negatives — negative sampling inflates precision
+substantially and makes cross-paper comparison meaningless.</p></div></div>
+
+<div class="qcat">C · Content-based filtering</div>
+
+<div class="qa"><div class="q">What is TF-IDF and why is it right here?</div>
+<div class="a"><p>Term frequency × inverse document frequency. TF rewards a term appearing often in
+one document; IDF discounts terms appearing across many documents. The effect is that a term shared
+by every film — "drama" — carries little weight, while a discriminating term — "neo-noir",
+"Martin Scorsese" — carries a lot. That is exactly the signal a similarity should be built on.</p>
+<p>I use <b>sublinear TF</b> (1 + log tf) so that the third repetition of a genre adds less than the
+first, and <span class="mono">min_df=2</span> / <span class="mono">max_df=0.6</span> to drop terms
+that are too rare to generalise or too common to discriminate.</p></div></div>
+
+<div class="qa"><div class="q">Why L2-normalise the vectors?</div>
+<div class="a"><p>Two reasons. Practically, once every vector has unit length, cosine similarity
+<i>is</i> the dot product — cheaper and simpler.</p>
+<p>More importantly it makes the explanation exact. The score becomes a sum of per-term products, so
+each term's contribution is a real number and those numbers sum precisely to the displayed score. The
+interface can show "crime contributed 0.0883" and that is arithmetic, not an
+approximation.</p></div></div>
+
+<div class="qa"><div class="q">How do you build a user profile from ratings?</div>
+<div class="a"><p>A <b>Rocchio</b> profile — a weighted sum of the item vectors the user rated, where
+the weight is <span class="mono">(r − mean_u) / sd_u</span>. Items rated above the user's own mean
+pull the profile toward them; items below push it away. Dividing by their standard deviation makes a
+generous and a harsh rater comparable.</p>
+<p>Because the profile is a linear combination, the final score decomposes back across the source
+films — which is how the interface says "because you rated <i>Fargo</i> 5.0".</p></div></div>
+
+<div class="qa"><div class="q">How do you weight different metadata fields?</div>
+<div class="a"><p>By repeating tokens before vectorisation — that is how weighting works in a
+bag-of-words model. Genres ×3, tags ×2, TMDB keywords ×2, director ×2, cast ×1. Each field also gets
+a namespace prefix so a genre "drama" and a tag "drama" stay distinct features, since they differ in
+reliability.</p>
+<p>The weights are hand-set from judgement about signal quality, not learned. Learning them against
+NDCG would be a genuine improvement.</p></div></div>
+
+<div class="qcat">D · Collaborative filtering</div>
+
+<div class="qa"><div class="q">What is adjusted cosine similarity and why mean-centre?</div>
+<div class="a"><p>Plain cosine between two item columns is dominated by overall rating generosity:
+two films look similar simply because the same lenient users rated both highly. Subtracting each
+<i>user's</i> mean before computing the cosine removes that user-level offset, so the similarity
+measures agreement about <i>relative</i> preference — did the same people like this film more than
+they usually like things?</p></div></div>
+
+<div class="qa"><div class="q">What is significance shrinkage and why do you need it?</div>
+<div class="a"><p><span class="mono">sim' = sim × n / (n + λ)</span> with λ = 25. It scales a
+similarity toward zero in proportion to how few co-raters support it.</p>
+<p>Without it, a pair of obscure films rated by the same two people can show similarity 1.0 and
+dominate the neighbourhood. With λ = 25, a pair with 25 co-raters keeps half its similarity, and one
+with 3 keeps about a tenth. On a matrix this sparse it is the difference between a working model and
+noise.</p></div></div>
+
+<div class="qa"><div class="q">Item-based or user-based kNN — when would you choose each?</div>
+<div class="a"><p>Item-based is usually preferred in production: item-item similarities are far more
+stable than user-user (an item's rating profile changes slowly, a user's grows constantly), and they
+can be precomputed offline. It also explains well — "because you liked X".</p>
+<p>User-based is attractive when users greatly outnumber items, or when you want social framing
+("people like you also enjoyed"). Here they perform almost identically (Prec@10 0.0840 vs 0.0828),
+but item-kNN has better coverage — 6.0% against 2.7%.</p></div></div>
+
+<div class="qa"><div class="q">Explain matrix factorisation. What do the latent factors represent?</div>
+<div class="a"><p>Approximate the sparse rating matrix R as the product of two thin matrices:
+users × k and k × items. Each user and each item becomes a vector of k latent factors, and a
+prediction is their dot product — how well the user's taste aligns with what the film offers.</p>
+<p>The factors are not labelled by anyone; they are whatever directions best compress the observed
+ratings. They frequently land on interpretable axes. In my trained model, factor 3 separates
+<i>Casablanca</i> and <i>Four Weddings and a Funeral</i> at one pole from <i>Predator</i> and
+<i>Ace Ventura</i> at the other. The interface projects the full 9,724 × 50 matrix to 3D by PCA so
+this can be explored directly.</p></div></div>
+
+<div class="qa"><div class="q">Why include bias terms? What do they do?</div>
+<div class="a"><p><span class="mono">r̂ = μ + b_u + b_i + p_u·q_i</span>. The biases capture effects
+that have nothing to do with taste matching: some users rate generously, some films are broadly
+liked. If you leave them out, the factors waste capacity encoding them.</p>
+<p>They explain a surprising amount. Biases alone reach RMSE 0.9044 — and out-<i>rank</i> the full
+SVD. Everything the factors learn is the residual after biases are removed.</p></div></div>
+
+<div class="qa"><div class="q">How do you serve a user who signed up one minute ago?</div>
+<div class="a"><p><b>Fold-in.</b> Freeze the item factors Q and solve only for the new user's
+<span class="mono">p_u</span> and <span class="mono">b_u</span>. With Q fixed the objective is
+ridge regression with a closed form:</p>
+<pre><code>p = (Q_rᵀ Q_r + λI)⁻¹ Q_rᵀ e</code></pre>
+<p>alternated a few times with the bias update. At 50 factors that is a 50 × 50 solve —
+microseconds, no retraining. It is what lets the demo create a viewer, take five ratings and
+immediately produce collaborative recommendations.</p></div></div>
+
+<div class="qcat">E · Training</div>
+
+<div class="qa"><div class="q">Walk me through your SGD training loop.</div>
+<div class="a"><p>Per epoch: shuffle all 80,672 training ratings, slice into mini-batches of 4,096.
+For each batch, compute predictions with <span class="mono">np.einsum</span>, take the errors, then
+apply four scatter-add updates — to <span class="mono">b_u</span>, <span class="mono">b_i</span>,
+<span class="mono">p_u</span> and <span class="mono">q_i</span> — each of the form
+<span class="mono">param += lr · (error · other − reg · param)</span>. I use
+<span class="mono">np.add.at</span> so a user appearing twice in a batch gets both updates rather
+than one silently overwriting the other. The learning rate decays as
+<span class="mono">lr₀/(1 + 0.03·epoch)</span> so late epochs refine instead of oscillating. 30
+epochs, about 20 seconds, then cached.</p></div></div>
+
+<div class="qa"><div class="q">How did you choose 50 factors and 30 epochs?</div>
+<div class="a"><p>Grid search on held-out RMSE over factors {20, 50, 100} × reg {0.02, 0.05, 0.10} ×
+epochs {20, 30}. 50 factors with reg 0.02 at 30 epochs won at 0.8892.</p>
+<p>Worth noting: every one of the 18 configurations landed between 0.889 and 0.903. That narrow band
+is itself a finding — on data this sparse the model is capacity-limited, not tuning-limited, and
+chasing hyper-parameters has a low ceiling.</p></div></div>
+
+<div class="qa"><div class="q">How did you know it was overfitting?</div>
+<div class="a"><p>By watching train and test RMSE diverge. At 30 epochs: train 0.677, test 0.8892.
+Extending to 60: train falls to 0.494 while test <i>rises</i> to 0.8916. Training error improving
+while held-out error worsens is the definition. I stopped at 30.</p></div></div>
+
+<div class="qa"><div class="q">What is your regularisation doing?</div>
+<div class="a"><p>L2 on every learned parameter — both factor matrices and both bias vectors —
+appearing in the update as the <span class="mono">− reg · param</span> term, which pulls parameters
+toward zero every step. It matters most for items with few ratings, whose factors would otherwise
+fit noise. λ = 0.02 was swept; 0.05 and 0.10 both scored worse, suggesting the model is already
+capacity-constrained.</p></div></div>
+
+<div class="qcat">F · Evaluation</div>
+
+<div class="qa"><div class="q">Your SVD has the best RMSE but ranks worse than kNN. Explain that.</div>
+<div class="a"><p>They are different objectives. RMSE measures calibration across <i>all</i>
+predictions; ranking cares only about the ordering of the <i>top few</i>. Squared error spends
+capacity being accurate about films the user will never see.</p>
+<p>Concretely: SVD is excellent at knowing an average film is a 3.4, which lowers RMSE a lot and
+affects the top 10 not at all. Item-kNN is poorly calibrated overall — worse than the bias baseline
+— but very good at identifying which handful of items a user's neighbourhood loved. That is why the
+project reports both, and why the two hybrids win different columns.</p></div></div>
+
+<div class="qa"><div class="q">Precision@10 of 0.09 sounds terrible. Is it?</div>
+<div class="a"><p>It is in line for this protocol. Three things suppress it. First, I rank against
+<b>all</b> ~9,700 unrated items with no negative sampling. Second, the split is temporal, which is
+harder than random. Third, the ceiling is low by construction: the median user has only about 14
+held-out items, of which perhaps 8 are relevant — so even a perfect top-10 could not exceed roughly
+0.8, and the realistic ceiling is far below that.</p>
+<p>What matters is the <i>relative</i> comparison on identical data: 0.0904 versus 0.0840 versus
+0.0228 is a real ordering. An absolute Prec@10 is only meaningful alongside its
+protocol.</p></div></div>
+
+<div class="qa"><div class="q">What is NDCG and why use it over precision?</div>
+<div class="a"><p>Normalised Discounted Cumulative Gain. Each hit contributes gain discounted by
+<span class="mono">1/log₂(rank + 1)</span>, and the total is normalised by the best achievable
+ordering. Precision@10 treats a hit at position 1 and position 10 identically; NDCG rewards putting
+good items higher — which is what users experience, since attention decays sharply down a
+list.</p></div></div>
+
+<div class="qa"><div class="q">Why measure coverage and novelty at all?</div>
+<div class="a"><p>Because accuracy alone can hide a useless system. My bias baseline recommends the
+same ~63 films to all 610 users — <b>0.7% coverage</b> — and still beats the content model on
+precision. It is accurate and worthless: no personalisation, no discovery, and no way for the long
+tail of the catalogue ever to be seen.</p>
+<p>Coverage measures how much of the catalogue is reachable; novelty (mean −log₂ popularity)
+measures how far from the blockbusters the recommendations sit. The content model wins both by a
+wide margin, which is a real strength the accuracy columns completely miss.</p></div></div>
+
+<div class="qcat">G · Engineering</div>
+
+<div class="qa"><div class="q">What was the hardest bug you found?</div>
+<div class="a"><p>Ranking top-N by predicted rating. Item-kNN was scoring <b>Prec@10 of 0.002</b> —
+essentially random — and recommending films with one or two ratings in the entire dataset.</p>
+<p>Two causes. Clipping predictions to 5.0 produced hundreds of exact ties, resolved by array index.
+And dividing by <span class="mono">Σ|sim|</span> — necessary for a calibrated rating — let an item
+supported by one weak neighbour tie with one supported by forty strong ones.</p>
+<p>The fix was to separate the two jobs: rank on the un-normalised weighted sum (Deshpande &amp;
+Karypis's top-N formulation), display the normalised rating. Prec@10 went from <b>0.002 to
+0.084</b>, a 38× improvement, without touching the similarity computation.</p></div></div>
+
+<div class="qa"><div class="q">How do you keep the explanation honest?</div>
+<div class="a"><p>Deliberately, because it is easy to fake. Every model exposes both a
+<span class="mono">rank_all</span> and a <span class="mono">score_all</span> path, and I verified they
+produce <i>identical</i> numbers where they overlap — so the arithmetic displayed is always the
+arithmetic the ranking used, never a plausible-looking reconstruction. The content explanation is
+exact by construction, since cosine of normalised vectors is a dot product and the per-term
+contributions sum to the score.</p></div></div>
+
+<div class="qa"><div class="q">How would you scale this to 10 million users and a million items?</div>
+<div class="a"><p>The kNN similarity is O(n²) in items — 10¹² pairs is not viable. I would move to a
+<b>two-stage architecture</b>, which is how production systems are actually built:</p>
+<ol><li><b>Candidate generation</b> — a few hundred items from millions, cheaply: approximate nearest
+neighbours over learned embeddings (FAISS/ScaNN), plus popularity and recency sources.</li>
+<li><b>Ranking</b> — an expensive model over only those few hundred, with full features.</li></ol>
+<p>Factorisation would move to ALS or BPR on Spark, retrained nightly, with fold-in for new users
+between runs. Embeddings go in a vector store, item-item neighbours precomputed offline into a
+key-value store.</p></div></div>
+
+<div class="qa"><div class="q">How do you make it fast enough to serve?</div>
+<div class="a"><p>Everything expensive is precomputed and cached: item-kNN similarities as a sparse
+matrix, SVD factors as arrays, evaluation results as JSON — all keyed on the data and
+hyper-parameters so they invalidate correctly. Cold start is about two minutes; warm start 1.6
+seconds. Serving a request is then a sparse matrix–vector product.</p>
+<p>The one place I got it wrong was the content explanation: it originally looped one dot product per
+rated film, which took 12.2 s for the heaviest user. Vectorising into a single matrix product made it
+0.25 s.</p></div></div>
+
+<div class="qcat">H · Harder follow-ups</div>
+
+<div class="qa"><div class="q">Your dataset has 610 users. Is anything you learned actually valid?</div>
+<div class="a"><p>The <i>relative</i> comparisons are valid — every model saw identical data and an
+identical protocol, so the ordering between them is real. The <i>absolute</i> numbers are not
+transferable; Prec@10 of 0.09 says little about a system with a million users.</p>
+<p>What generalises is the methodology: temporal splitting, separating ranking from rating
+prediction, reporting beyond-accuracy metrics, and shrinking similarities by support. What does not
+generalise is the specific tuning. I would treat every hyper-parameter here as a starting point, not
+a conclusion.</p></div></div>
+
+<div class="qa"><div class="q">How would you handle implicit feedback instead of ratings?</div>
+<div class="a"><p>The key difference is that absence is ambiguous — not watching something might mean
+dislike, or might mean never seeing it. So you cannot simply treat unobserved as zero.</p>
+<p>I would use the <b>Hu, Koren &amp; Volinsky (2008)</b> formulation: model a binary preference plus
+a <i>confidence</i> that scales with observation count, and train over all pairs with ALS, which has
+an efficient closed-form alternation. Or BPR, which optimises pairwise ordering directly. Evaluation
+would also change — ranking metrics only, since there is no rating to be accurate about.</p></div></div>
+
+<div class="qa"><div class="q">How would you A/B test this?</div>
+<div class="a"><p>Randomise by user, not by session, so a person gets a consistent experience.
+Primary metric should be something that reflects satisfaction rather than curiosity — long-dwell
+watches or completion rate, not click-through, which rewards misleading thumbnails. Guardrail
+metrics: catalogue coverage and long-tail share, so a win is not purely popularity bias.</p>
+<p>For faster signal I would use <b>interleaving</b> — mixing both rankers' results in one list and
+attributing clicks — which needs far less traffic than a split test. And I would run long enough to
+see novelty effects decay.</p></div></div>
+
+<div class="qa"><div class="q">What would you do differently if you started again?</div>
+<div class="a"><p>Three things. I would separate ranking from rating prediction <i>from the start</i>
+rather than discovering it as a 38× bug. I would build the evaluation harness before the models, so
+every change was measured immediately instead of retrofitted. And I would learn the metadata field
+weights against NDCG rather than hand-setting genres ×3, tags ×2 — those were judgement calls that
+were never validated.</p></div></div>
+
+<div class="qa"><div class="q">Why did you build the explanations at all? Users do not read maths.</div>
+<div class="a"><p>Most will not, and in a consumer product the exposed arithmetic would be a toggle
+that stays off — which is exactly how it is built here.</p>
+<p>But the explanations were not primarily for users; they were for me. Being unable to show <i>why</i>
+an item ranked where it did is how the ranking bug survived — the list looked plausible while
+Precision@10 was 0.002. Once every score had to decompose into its parts, an item topping the list
+on the strength of one weak neighbour became obvious. Explainability was a debugging tool before it
+was a feature, and it is also increasingly a regulatory requirement.</p></div></div>
+
+</body>
+</html>

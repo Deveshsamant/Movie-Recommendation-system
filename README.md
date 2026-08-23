@@ -13,6 +13,11 @@ approaches are kept visibly separate so you can watch them disagree.
 the content model scored it <b>0.067</b>. The crowd found something the metadata never would — and the
 interface says so, rather than just ranking it.</sub>
 
+> **📄 Full technical documentation —
+> [Movie-Recommender-System-Explained.pdf](docs/Movie-Recommender-System-Explained.pdf)** (28 pages)
+> Every concept in depth: the data, the maths, how each model was trained and tuned, the evaluation
+> methodology, the engineering decisions — and an **interview question bank** with worked answers.
+
 ---
 
 ## Contents
