@@ -4,10 +4,14 @@
 behind every recommendation shown on screen.**
 
 Most recommender demos hand you a list and ask you to trust it. This one shows its working: every
-score can be expanded into the exact terms, neighbours or latent factors that produced it, and the
-three approaches are kept visibly separate so you can watch them disagree.
+score expands into the exact terms, neighbours or latent factors that produced it, and the three
+approaches are kept visibly separate so you can watch them disagree.
 
-![Browse](docs/screenshots/01-browse.png)
+![Browse — the hybrid's top pick, with both signals shown](docs/screenshots/01-browse.jpg)
+
+<sub>The billboard explains itself: collaborative filtering predicted <b>5.00</b> for this film while
+the content model scored it <b>0.067</b>. The crowd found something the metadata never would — and the
+interface says so, rather than just ranking it.</sub>
 
 ---
 
@@ -33,8 +37,8 @@ cd Movie-Recommendation-system
 pip install -r requirements.txt
 ```
 
-Add a TMDB key so posters load (see [below](#the-tmdb-api-key) — the app runs without one, just
-without artwork):
+Add a TMDB key so posters load — the app runs fine without one, just without artwork
+([details below](#the-tmdb-api-key)):
 
 ```bash
 cp config.example.json config.json
@@ -49,7 +53,7 @@ python run.py
 Open <http://localhost:8000>.
 
 **First run** downloads MovieLens (~1 MB) and trains every model — about **two minutes**. Everything
-is cached to `cache/`, so later starts take **1–2 seconds**.
+caches to `cache/`, so later starts take **1–2 seconds**.
 
 Requires **Python 3.9+**. Dependencies: FastAPI, uvicorn, pandas, numpy, scipy, scikit-learn,
 requests. No Node, no build step — the front end is plain ES modules.
@@ -58,9 +62,8 @@ requests. No Node, no build step — the front end is plain ES modules.
 
 ## The data — every number
 
-The dataset is **MovieLens `ml-latest-small`** from GroupLens Research at the University of
-Minnesota. It downloads automatically on first run from `files.grouplens.org`; it is **not**
-committed to this repo.
+**MovieLens `ml-latest-small`** from GroupLens Research, University of Minnesota. It downloads
+automatically on first run from `files.grouplens.org`; it is **not** committed to this repo.
 
 | Quantity | Value |
 |---|---|
@@ -72,7 +75,7 @@ committed to this repo.
 | Rating scale | **0.5 – 5.0** in half-star steps |
 | Mean rating | **3.502** |
 | Genres | **19** |
-| Ratings per viewer | minimum **20**, median **70**, maximum **2,698** |
+| Ratings per viewer | min **20**, median **70**, max **2,698** |
 | Community tags | **3,683** |
 
 ### Train / test split
@@ -86,7 +89,7 @@ committed to this repo.
 
 The split is temporal, not random, on purpose. A random split lets the model see a viewer's future
 while predicting their past, which flatters every number in the results table. Expect these RMSEs to
-look slightly worse than published random-split figures — they are measuring a harder question.
+read slightly worse than published random-split figures — they answer a harder question.
 
 ### Metadata scale
 
@@ -103,9 +106,9 @@ look slightly worse than published random-split figures — they are measuring a
 
 Posters, synopses, cast, directors and keywords come from **[TMDB](https://www.themoviedb.org/)**.
 That metadata is not decoration — the keywords, cast and crew are literally part of the vector the
-content-based model scores against, which is what takes it from 5.0 to 19.6 terms per film.
+content-based model scores against, which is what takes it from 5.0 to **19.6 terms per film**.
 
-**No key is committed to this repository.** `config.json` is in `.gitignore`. Get your own free key
+**No API key is committed to this repository.** `config.json` is gitignored. Get your own free key
 from [TMDB → Settings → API](https://www.themoviedb.org/settings/api), then either:
 
 ```bash
@@ -115,11 +118,11 @@ cp config.example.json config.json      # paste your key into "tmdb_api_key"
 or set an environment variable and skip the file entirely:
 
 ```bash
-export TMDB_API_KEY=your_key_here       # Windows: set TMDB_API_KEY=your_key_here
+export TMDB_API_KEY=your_key_here       # Windows:  set TMDB_API_KEY=your_key_here
 ```
 
 Without a key the app still runs end to end — every algorithm, metric and explanation works. You
-just get title placeholder cards instead of posters.
+just get placeholder cards instead of posters.
 
 ### If TMDB looks unreachable
 
@@ -134,11 +137,13 @@ CDN reachable. The client handles this automatically, trying three routes in ord
 Whichever route works is remembered for a day and shown in the sidebar. If all three fail, the app
 degrades to placeholder cards rather than breaking.
 
-**A note on dead IDs.** MovieLens' `links.csv` was generated years ago, so **106** of its TMDB IDs
-now return 404 — entries have been merged or re-issued, and miniseries such as *Roots* and
-*Generation War* were never in the movie namespace at all. When an ID fails, the client searches
-TMDB by title and year across both `/movie` and `/tv`. That recovered **91 of the 106**; the
-remaining **15** get a deliberate placeholder card. To re-run the repair:
+### Dead IDs
+
+MovieLens' `links.csv` was generated years ago, so **106** of its TMDB IDs now return 404 — entries
+have been merged or re-issued, and miniseries such as *Roots* and *Generation War* were never in the
+movie namespace at all. When an ID fails, the client searches TMDB by title and year across both
+`/movie` and `/tv`. That recovered **91 of the 106**; the remaining **15** get a deliberate
+placeholder. To re-run the repair:
 
 ```bash
 python backend/enrich.py --repair
@@ -164,34 +169,34 @@ so cosine similarity reduces to a plain dot product.
 | Cast (top 6) | ×1 |
 | Decade, title words | ×1 |
 
-Your profile is a **Rocchio vector**: films rated above your personal mean pull the profile toward
-them, films below push it away, weighted by `(rᵢ − mean) / sd`.
+Your profile is a **Rocchio vector**: films rated above your personal mean pull it toward them,
+films below push it away, weighted by `(rᵢ − mean) / sd`.
 
 ```
-profile = normalise( Σᵢ (rᵢ − mean_u)/sd_u × vᵢ )
+profile  = normalise( Σᵢ (rᵢ − mean_u)/sd_u × vᵢ )
 score(j) = cos(profile, vⱼ) = Σₜ profile[t] × tfidf_j[t]
 ```
 
 Because that is a dot product, each shared term's contribution is an exact number that sums to the
-score — which is what the explanation panel shows.
+score — which is what the explanation panel shows, term by term.
 
 ### 2 · Collaborative filtering
 
 Reads *across rows* — who rated what, ignoring entirely what a film is about. Three models:
 
 **Item-based kNN** (Sarwar et al., 2001) — adjusted-cosine similarity. Ratings are mean-centred per
-user first, which cancels the "this person rates everything a 4" effect. Similarities are shrunk
-toward zero by co-rater count so a similarity backed by 3 people cannot outrank one backed by 300.
+user first, cancelling the "this person rates everything a 4" effect. Similarities are shrunk toward
+zero by co-rater count, so one backed by 3 people cannot outrank one backed by 300.
 
 ```
-sim'(i,j) = sim(i,j) × n_common / (n_common + λ)          k = 40, λ = 25
+sim'(i,j) = sim(i,j) × n_common / (n_common + λ)         k = 40, λ = 25
 r̂(u,i)   = mean_u + Σⱼ sim(i,j)(r_uj − mean_u) / Σⱼ |sim(i,j)|
 ```
 
 Stored similarities: **386,434** (top 40 neighbours per film).
 
 **User-based kNN** (Resnick et al., GroupLens 1994) — Pearson correlation over a fixed neighbourhood
-of the k=40 most similar viewers, same shrinkage.
+of the k = 40 most similar viewers, same shrinkage.
 
 **Matrix factorisation — BiasSVD** (Funk / Koren 2009), written from scratch in NumPy and trained by
 mini-batch SGD with L2 regularisation and a decaying learning rate.
@@ -216,7 +221,7 @@ A **brand-new viewer** is served by **fold-in**: item factors stay frozen and on
 solved, as a closed-form ridge regression alternated with the bias update. No retraining.
 
 ```
-p = (Qᵣᵀ Qᵣ + λI)⁻¹ Qᵣᵀ e      where e = r − μ − b_u − b_i
+p = (Qᵣᵀ Qᵣ + λI)⁻¹ Qᵣᵀ e        where  e = r − μ − b_u − b_i
 ```
 
 ### 3 · Hybrid
@@ -231,11 +236,12 @@ Four strategies from Burke's (2002) taxonomy:
 | **Cascade** | collaborative shortlists candidates, content re-ranks inside it |
 
 ```
-score = α · norm(CF) + (1 − α) · norm(content)         α = 0.70
+score = α · norm(CF) + (1 − α) · norm(content)          α = 0.70
 ```
 
-α = 0.70 was chosen by sweeping α ∈ {0, 0.3, 0.5, 0.7, 0.85, 1.0} against NDCG@10. Below 8 ratings
-the switching hybrid falls back to content, because collaborative evidence is too thin to trust.
+α = 0.70 was chosen by sweeping α ∈ {0, 0.3, 0.5, 0.7, 0.85, 1.0} against NDCG@10. Below **8**
+ratings the switching hybrid falls back to content, because collaborative evidence is too thin to
+trust.
 
 ### One deliberate design decision
 
@@ -244,9 +250,9 @@ the switching hybrid falls back to content, because collaborative evidence is to
 Ranking a top-N list by predicted rating is a well-known trap: clipping to 5.0 creates hundreds of
 exact ties, and dividing by the sum of similarities lets an item supported by one weak neighbour tie
 with genuinely strong picks. Fixing this moved item-kNN's Prec@10 from **0.002 to 0.084** — a 38×
-difference from one modelling choice.
+difference from a single modelling choice.
 
-So each model exposes both:
+So every model exposes both:
 
 - `rank_all` — raw evidence strength, used to order the list
 - `score_all` — the clipped, normalised rating a person would recognise
@@ -258,7 +264,7 @@ screen is always the maths the ranking actually used.
 
 ## Measured results
 
-Every model retrained on the same 80% split, scored on ratings it has never seen. `k = 10`.
+Every model retrained on the same 80% split and scored on ratings it has never seen. `k = 10`.
 
 | Model | RMSE ↓ | MAE ↓ | Prec@10 ↑ | NDCG@10 ↑ | Hit rate ↑ | Coverage | Novelty |
 |---|---|---|---|---|---|---|---|
@@ -270,13 +276,11 @@ Every model retrained on the same 80% split, scored on ratings it has never seen
 | **Hybrid (content + item-kNN)** | 0.8933 | 0.6729 | **0.0904** | **0.1167** | 0.4307 | 6.5% | 2.61 |
 | **Hybrid (content + SVD)** | **0.8683** | **0.6650** | 0.0346 | 0.0426 | 0.2196 | 2.5% | 4.04 |
 
-![Scoreboard](docs/screenshots/05-scoreboard.png)
-
 **Three things worth reading out of that table:**
 
-1. **The hybrid beats both of its own parents.** Content + item-kNN scores **0.0904** Prec@10
-   against **0.0840** for item-kNN alone and **0.0228** for content alone. That is the entire
-   argument for hybrid recommenders, measured rather than asserted.
+1. **The hybrid beats both of its own parents.** Content + item-kNN scores **0.0904** Prec@10 against
+   **0.0840** for item-kNN alone and **0.0228** for content alone. That is the entire argument for
+   hybrid recommenders, measured rather than asserted.
 
 2. **Rating accuracy and ranking quality are different problems.** SVD has the best RMSE of any
    single model yet ranks worse than item-kNN — which in turn predicts ratings worse than the
@@ -302,7 +306,7 @@ Every model retrained on the same 80% split, scored on ratings it has never seen
 
 ## The interface
 
-Eight views. Light and dark, following your OS until you pick a side.
+Eight views, light and dark, following your OS until you pick a side.
 
 | View | What it shows |
 |---|---|
@@ -315,54 +319,33 @@ Eight views. Light and dark, following your OS until you pick a side.
 | **Scoreboard** | Seven models across seven metrics |
 | **Compare viewers** | The same algorithm run across several people at once |
 
-### Browse
+**Browse** arranges the recommenders as a streaming front page: a billboard hero, a rotating 3D
+shelf of the hybrid top ten, one rail per approach — including a long-tail rail that **only**
+content-based filtering can reach — and a Top 10. **Play** turns the top ten into a slideshow where
+each slide carries the TMDB synopsis and names which approach carried that pick, with all three
+scores side by side.
 
-Every row is a different recommender, arranged as a streaming front page: a billboard hero, a
-rotating 3D shelf of the hybrid top ten, one rail per approach — including a long-tail rail that
-**only** content-based filtering can reach — and a Top 10.
+**Click any poster** and a drawer opens on Info — synopsis, director, full cast, TMDB rating,
+runtime, keywords — with three more tabs breaking that same pick down under each approach: term by
+term, neighbour by neighbour, factor by factor.
 
-![Browse shelves](docs/screenshots/02-browse-shelves.png)
+Two canvas scenes carry real structure rather than decoration:
 
-**Play** opens a reel: the hybrid top ten as an auto-advancing slideshow. Each slide carries the
-TMDB synopsis and genres, names which approach carried that pick and why, and shows all three scores
-side by side.
+- **The 50-dimensional space it invented** *(Collaborative → Matrix factorisation)* — the item factor
+  matrix **Q** (9,724 × 50) projected to 3D by PCA. Drag to orbit, scroll to zoom. Films you rated
+  are red; your own vector **p_u** is drawn into the same space. Nobody labelled these axes — the
+  factorisation built them purely to compress the rating matrix, yet they land on recognisable
+  clusters.
+- **The neighbourhood, in orbit** *(Collaborative → Item-based kNN)* — the target film at the centre,
+  each film you rated orbiting at radius `1 − similarity`, its size the weight it carries. The sum
+  of those weighted deviations *is* the prediction.
 
-![Play reel](docs/screenshots/06-reel.png)
+**Cold start is watchable.** Create your own viewer and rate films one at a time. Content-based
+filtering works from your **first** rating; collaborative needs roughly **3**; below **8** the hybrid
+falls back to content and says so. The sidebar meter tracks it.
 
-### Explaining a single pick
-
-Click any poster. The drawer opens on **Info** — synopsis, director, full cast, TMDB rating, runtime,
-keywords — with three more tabs breaking that same pick down under each approach: term by term,
-neighbour by neighbour, factor by factor.
-
-![Film drawer](docs/screenshots/07-drawer.png)
-
-### Two visualisations that carry real structure
-
-**The 50-dimensional space it invented** *(Collaborative → Matrix factorisation)* — the item factor
-matrix **Q** (9,724 × 50) projected to 3D by PCA. Drag to orbit, scroll to zoom. Films you rated are
-red, and your own vector **p_u** is drawn into the same space. Nobody labelled these axes; the
-factorisation built them purely to compress the rating matrix, yet they land on recognisable
-clusters.
-
-![Latent factor space](docs/screenshots/04-latent-space.png)
-
-**The neighbourhood, in orbit** *(Collaborative → Item-based kNN)* — the target film at the centre,
-each film you rated orbiting at radius `1 − similarity`, its size the weight it carries. The sum of
-those weighted deviations *is* the prediction.
-
-### Cold start, watchable
-
-Create your own viewer and rate films one at a time. Content-based filtering works from your **first**
-rating; collaborative filtering needs roughly **3**; below **8** the hybrid falls back to content and
-says so. The sidebar meter tracks it.
-
-![Rate films](docs/screenshots/03-rate.png)
-
-### Show scores & maths
-
-A global toggle. Off hides every score, badge and derivation for clean browsing; on reveals the full
-arithmetic everywhere.
+**Show scores & maths** is a global toggle — off hides every score and derivation for clean
+browsing, on reveals the full arithmetic everywhere.
 
 ---
 
@@ -402,7 +385,7 @@ on.
 
 ## Configuration
 
-Everything lives in `config.json` (copied from `config.example.json`).
+Everything lives in `config.json`, copied from `config.example.json`.
 
 | Key | Default | Notes |
 |---|---|---|
@@ -430,8 +413,8 @@ Released under the **[MIT License](LICENSE)**.
 **Data** — [MovieLens](https://grouplens.org/datasets/movielens/) `ml-latest-small`, GroupLens
 Research, University of Minnesota. Downloaded at runtime, not redistributed here.
 
-**Metadata and posters** — [TMDB](https://www.themoviedb.org/). This product uses the TMDB API but
-is not endorsed or certified by TMDB.
+**Metadata and posters** — [TMDB](https://www.themoviedb.org/). This product uses the TMDB API but is
+not endorsed or certified by TMDB.
 
 **Papers the models come from**
 
