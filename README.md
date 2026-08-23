@@ -32,8 +32,8 @@ interface says so, rather than just ranking it.</sub>
 ## Quick start
 
 ```bash
-git clone https://github.com/Deveshsamant/Movie-Recommendation-system.git
-cd Movie-Recommendation-system
+git clone https://github.com/Deveshsamant/Movie-Recommendation-System.git
+cd Movie-Recommendation-System
 pip install -r requirements.txt
 ```
 
