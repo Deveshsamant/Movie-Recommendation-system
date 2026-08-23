@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en" data-scores="on">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Movie Recommender System · Content · Collaborative · Hybrid</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Narrow:wght@400;600;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="/static/css/app.css?v=16" />
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23ec3013'/></svg>" />
+<script>
+  /* Set the theme before first paint, otherwise the light palette flashes. */
+  (function () {
+    var saved = null;
+    try { saved = localStorage.getItem("mrs-theme"); } catch (e) { /* private mode */ }
+    var dark = saved ? saved === "dark"
+      : window.matchMedia("(prefers-color-scheme: dark)").matches;
+    document.documentElement.dataset.theme = dark ? "dark" : "light";
+  })();
+</script>
+</head>
+<body>
+
+<div class="boot" id="boot">
+  <div class="boot__matrix" id="bootMatrix" aria-hidden="true"></div>
+  <div class="boot__veil" aria-hidden="true"></div>
+  <div class="boot__inner">
+    <div class="boot__kicker">Movie Recommender System</div>
+    <h1><span>Three recommenders,</span><span>one very empty</span><span>rating matrix.</span></h1>
+
+    <div class="boot__count">
+      <b id="bootCount">0</b><span>of 100,836 ratings<br />loaded into the grid</span>
+    </div>
+
+    <div class="boot__steps" id="bootSteps">
+      <div class="bstep" data-step="content">
+        <span class="bstep__k">01</span>
+        <span class="bstep__l">◈ Content-based</span>
+        <span class="bstep__t"><i></i></span>
+        <span class="bstep__s">waiting</span>
+      </div>
+      <div class="bstep" data-step="collab">
+        <span class="bstep__k">02</span>
+        <span class="bstep__l">◉ Collaborative</span>
+        <span class="bstep__t"><i></i></span>
+        <span class="bstep__s">waiting</span>
+      </div>
+      <div class="bstep" data-step="hybrid">
+        <span class="bstep__k">03</span>
+        <span class="bstep__l">◆ Hybrid</span>
+        <span class="bstep__t"><i></i></span>
+        <span class="bstep__s">waiting</span>
+      </div>
+    </div>
+
+    <p id="bootMsg">Loading MovieLens…</p>
+    <div class="boot__note">First run trains every model · later runs load from cache</div>
+  </div>
+</div>
+
+<div class="shell" id="shell" hidden>
+
+  <aside class="rail">
+    <div class="rail__brand">
+      <b>Movie<br />Recommender<br />System</b>
+      <span>Three approaches · one dataset</span>
+      <div class="rail__ticks"><i></i><i></i><i></i></div>
+    </div>
+
+    <button class="userbtn" id="userBtn" aria-expanded="false">
+      <span class="userbtn__av" id="userAvatar">1</span>
+      <span class="userbtn__meta">
+        <b id="userName">MovieLens user 1</b>
+        <small id="userStats">— ratings</small>
+      </span>
+      <svg class="icon chev" viewBox="0 0 24 24"><path d="m6 9 6 6 6-6" /></svg>
+    </button>
+
+    <div class="userpanel" id="userPanel" hidden>
+      <div class="userpanel__top">
+        <input type="text" id="userFilter" placeholder="Filter viewers…" aria-label="Filter viewers" />
+        <button class="btn btn--primary" id="newUserBtn" style="padding:8px 12px">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14" /><path d="M12 5v14" /></svg>New
+        </button>
+      </div>
+      <div class="userpanel__list" id="userList"></div>
+    </div>
+
+    <div class="strength" id="strength">
+      <div class="strength__top"><span>Profile strength</span><b id="strengthN">0</b></div>
+      <div class="strength__bar" id="strengthBar"></div>
+      <div class="strength__note" id="strengthNote">—</div>
+    </div>
+
+    <nav class="railnav" id="nav">
+      <div class="railnav__group">Watch</div>
+      <button class="navitem is-on" data-view="browse">
+        <svg class="icon" viewBox="0 0 24 24"><rect width="20" height="15" x="2" y="7" rx="2" /><path d="m17 2-5 5-5-5" /><path d="m10 12 5 2.5-5 2.5z" /></svg><span>Browse</span>
+      </button>
+      <div class="railnav__group">Dataset</div>
+      <button class="navitem" data-view="data">
+        <svg class="icon" viewBox="0 0 24 24"><rect width="18" height="18" x="3" y="3" rx="2" /><path d="M3 9h18" /><path d="M3 15h18" /><path d="M9 3v18" /><path d="M15 3v18" /></svg><span>The data</span>
+      </button>
+      <button class="navitem" data-view="rate">
+        <svg class="icon" viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" /></svg><span>Rate films</span>
+      </button>
+      <div class="railnav__group">Approaches</div>
+      <button class="navitem" data-view="content">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.57 3.91a2 2 0 0 0 1.66 0l8.57-3.9a1 1 0 0 0 0-1.83Z" /><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65" /><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65" /></svg><span>Content-based</span>
+      </button>
+      <button class="navitem" data-view="collab">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" /><path d="M22 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" /></svg><span>Collaborative</span>
+      </button>
+      <button class="navitem" data-view="hybrid">
+        <svg class="icon" viewBox="0 0 24 24"><circle cx="5" cy="6" r="3" /><circle cx="19" cy="6" r="3" /><circle cx="12" cy="18" r="3" /><path d="M5 9v2a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V9" /><path d="M12 13v2" /></svg><span>Hybrid</span>
+      </button>
+      <div class="railnav__group">Analysis</div>
+      <button class="navitem" data-view="score">
+        <svg class="icon" viewBox="0 0 24 24"><line x1="6" x2="6" y1="20" y2="15" /><line x1="12" x2="12" y1="20" y2="8" /><line x1="18" x2="18" y1="20" y2="4" /><line x1="3" x2="21" y1="20" y2="20" /></svg><span>Scoreboard</span>
+      </button>
+      <button class="navitem" data-view="people">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M21.21 15.89A10 10 0 1 1 8 2.83" /><path d="M22 12A10 10 0 0 0 12 2v10z" /></svg><span>Compare viewers</span>
+      </button>
+    </nav>
+
+    <div class="railfoot">
+      <button class="switch" id="scoreToggle" aria-pressed="true">
+        <span class="switch__track"><i></i></span>
+        <span>Show scores &amp; maths</span>
+      </button>
+      <div class="themes" id="themes">
+        <span>Theme</span>
+        <button class="swatch swatch--light" data-theme-set="light" aria-label="Light theme"></button>
+        <button class="swatch swatch--dark" data-theme-set="dark" aria-label="Dark theme"></button>
+      </div>
+      <div class="tmdb" id="tmdbStatus"><i></i><span>Connecting to TMDB…</span></div>
+    </div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="topbar">
+      <b>Movie Recommender System</b>
+      <span style="display:flex;gap:8px;align-items:center">
+        <button class="btn btn--ghost" id="themeToggleSm">Theme</button>
+        <button class="btn btn--ghost" id="scoreToggleSm">Scores</button>
+      </span>
+    </div>
+    <div class="view" id="view"></div>
+  </main>
+</div>
+
+<div id="overlays"></div>
+<div class="toast" id="toast" hidden></div>
+
+<script type="module" src="/static/js/app.js?v=16"></script>
+</body>
+</html>

@@ -1,0 +1,28 @@
+{
+  "_comment": "Copy this file to config.json and paste your own TMDB API key. config.json is gitignored so your key is never committed. You can also set the TMDB_API_KEY environment variable instead and leave this blank.",
+
+  "tmdb_api_key": "",
+  "posters_enabled": true,
+  "tmdb_direct_route": true,
+
+  "dataset": "ml-latest-small",
+  "host": "127.0.0.1",
+  "port": 8000,
+
+  "svd": {
+    "n_factors": 50,
+    "n_epochs": 30,
+    "lr": 0.007,
+    "reg": 0.02,
+    "seed": 42
+  },
+  "knn": {
+    "k_neighbors": 40,
+    "shrinkage": 25
+  },
+  "hybrid": {
+    "alpha": 0.7,
+    "cf_model": "item-knn",
+    "cold_start_threshold": 8
+  }
+}

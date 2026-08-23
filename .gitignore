@@ -1,0 +1,27 @@
+# ── secrets ───────────────────────────────────────────────
+# config.json holds your personal TMDB API key. Never commit it.
+# Copy config.example.json to config.json and put your key there.
+config.json
+
+# ── generated / downloadable ──────────────────────────────
+# MovieLens is fetched automatically on first run (~1 MB)
+data/
+
+# trained models, evaluation results, TMDB metadata, saved viewers
+cache/
+
+# ── python ────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+env/
+
+# ── editors / os ──────────────────────────────────────────
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
