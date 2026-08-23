@@ -1,0 +1,14 @@
+# Normalise line endings so the repo is identical on Windows, macOS and Linux.
+# Without this, git rewrites LF to CRLF on checkout and every file looks
+# modified when cloned on a different platform.
+
+* text=auto eol=lf
+
+# Binary — never touch these
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.npz binary
+*.zip binary
